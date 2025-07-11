@@ -1,10 +1,10 @@
 name: CI/CD pour BobApp
 
 on:
-    push:
-        branches: [ main, dev/* ]
-    pull_request:
-        branches: [ main, dev/* ]
+  push:
+    branches: [ main, dev/* ]
+  pull_request:
+    branches: [ main, dev/* ]
 
 jobs:
   backend-job:
@@ -16,9 +16,9 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-            java-version: '11'
-            distribution: 'temurin'
-            cache: maven
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
 
       - name: Tests and build with Maven
         run: mvn -B clean install
@@ -31,6 +31,12 @@ jobs:
           name: jacoco-report
           path: back/target/site/jacoco
 
+      - name: Upload compiled classes for SonarCloud
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-target
+          path: back/target
+
   frontend-job:
     runs-on: ubuntu-latest
     steps:
@@ -40,9 +46,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-            node-version: '18'
-            cache: 'npm'
-            cache-dependency-path: front/package-lock.json
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: front/package-lock.json
 
       - name: Install dependencies
         run: npm install
@@ -74,13 +80,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./reports
 
+      - name: Restore backend target directory
+        run: |
+          mkdir -p back/target
+          cp -r reports/backend-target/* back/target/
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
