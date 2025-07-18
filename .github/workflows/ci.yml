@@ -37,7 +37,8 @@ jobs:
 
       - name: SonarCloud Scan - Backend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
-        working-directory: ./back
+        with:
+          projectBaseDir: ./back
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +77,8 @@ jobs:
 
       - name: SonarCloud Scan - Frontend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
-        working-directory: ./front
+        with:
+          projectBaseDir: ./front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
