@@ -9,7 +9,7 @@ on:
 jobs:
   # --- BACKEND JOB ---
   backend:
-    name: Backend
+    name: Backend - Build, test, analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,7 +45,7 @@ jobs:
 
   # --- FRONTEND JOB ---
   frontend:
-    name: Frontend
+    name: Frontend - Build, test, analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
