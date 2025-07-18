@@ -7,11 +7,15 @@ on:
     branches: [ main, dev/* ]
 
 jobs:
-  backend-job:
+  # --- BACKEND JOB ---
+  backend:
+    name: Backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -24,24 +28,29 @@ jobs:
         run: mvn -B clean install
         working-directory: ./back
 
-      - name: Upload backend report
+      - name: Upload JaCoCo report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: jacoco-report
           path: back/target/site/jacoco
 
-      - name: Upload compiled classes for SonarCloud
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-target
-          path: back/target
+      - name: SonarCloud Scan - Backend
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        working-directory: ./back
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  frontend-job:
+  # --- FRONTEND JOB ---
+  frontend:
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,47 +67,16 @@ jobs:
         run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
         working-directory: ./front
 
-      - name: Upload frontend report
+      - name: Upload Angular coverage artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: angular-coverage-report
           path: front/coverage
 
-      - name: Build frontend
-        run: npm run build
-        working-directory: ./front
-
-
-  sonarcloud-analysis:
-    name: SonarCloud Analysis
-    needs: [ backend-job, frontend-job ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./reports
-
-      - name: Restore backend target directory
-        run: |
-          mkdir -p back/target
-          cp -r reports/backend-target/* back/target/
-
-      - name: SonarCloud Scan
+      - name: SonarCloud Scan - Frontend
         uses: SonarSource/sonarqube-scan-action@v5.0.0
+        working-directory: ./front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
