@@ -9,7 +9,7 @@ on:
 jobs:
   # --- BACKEND JOB ---
   backend:
-    name: Backend - Build, test, analysis
+    name: Backend - Build, tests, analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -36,12 +36,12 @@ jobs:
           path: back/target/site/jacoco
 
       - name: SonarCloud Scan - Backend
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: ./back
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
   # --- FRONTEND JOB ---
   frontend:
@@ -76,9 +76,9 @@ jobs:
           path: front/coverage
 
       - name: SonarCloud Scan - Frontend
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: ./front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
