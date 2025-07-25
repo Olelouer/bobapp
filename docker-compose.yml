@@ -1,0 +1,16 @@
+services:
+  # --- BACKEND SERVICE ---
+  backend:
+    image: oliv101/bobapp-backend:latest
+    container_name: bobapp-backend
+    ports:
+      - "8080:8080"
+
+  # --- FRONTEND SERVICE ---
+  frontend:
+    image: oliv101/bobapp-frontend:latest
+    container_name: bobapp-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
