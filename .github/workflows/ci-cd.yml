@@ -7,7 +7,7 @@ on:
     branches: [ main, dev/* ]
 
 jobs:
-  # --- BACKEND JOB ---
+  # --- BACKEND CI JOB ---
   backend:
     name: Backend - Build, tests, analysis
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-  # --- FRONTEND JOB ---
+  # --- FRONTEND CI JOB ---
   frontend:
     name: Frontend - Build, test, analysis
     runs-on: ubuntu-latest
@@ -84,3 +84,49 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+
+  # --- BACKEND CD JOB ---
+  backend-cd:
+    name: Backend - Docker Image
+    runs-on: ubuntu-latest
+    needs: backend
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest
+
+  # --- FRONTEND CD JOB ---
+  frontend-cd:
+    name: Frontend - Docker Image
+    runs-on: ubuntu-latest
+    needs: frontend
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push frontend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest
