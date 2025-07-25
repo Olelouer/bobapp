@@ -1,4 +1,4 @@
-name: CI/CD pour BobApp
+name: CI/CD for BobApp
 
 on:
   push:
@@ -41,6 +41,7 @@ jobs:
           projectBaseDir: ./back
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
   # --- FRONTEND JOB ---
@@ -81,4 +82,5 @@ jobs:
           projectBaseDir: ./front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
