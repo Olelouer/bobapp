@@ -28,21 +28,19 @@ jobs:
         run: mvn -B clean install
         working-directory: ./back
 
+      - name: Build, Test, and Analyze with Maven
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify sonar:sonar
+        working-directory: ./back
+
       - name: Upload JaCoCo report artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: jacoco-report
           path: back/target/site/jacoco
-
-      - name: SonarCloud Scan - Backend
-        uses: SonarSource/sonarqube-scan-action@v5
-        with:
-          projectBaseDir: ./back
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
 
   # --- FRONTEND CI JOB ---
   frontend:
