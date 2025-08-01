@@ -131,6 +131,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./back
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: false
           load: true
           tags: |
@@ -177,6 +179,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./front
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: false
           load: true
           tags: |
