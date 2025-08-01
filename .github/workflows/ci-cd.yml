@@ -120,14 +120,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push backend Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./back
-          push: true
+          push: false
+          load: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest
+
+      - name: Scan Image with Trivy
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Docker Image
+        run: docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend
 
   # --- FRONTEND CD JOB ---
   frontend-cd:
@@ -145,11 +159,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push frontend Docker Image
+      - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
           context: ./front
-          push: true
+          push: false
+          load: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest
+
+      - name: Scan Image with Trivy
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push Docker Image
+        run: docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend
