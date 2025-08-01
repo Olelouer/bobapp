@@ -145,12 +145,10 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy scan results
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Upload Trivy scan results to Github Security
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: trivy-report-backend
-          path: 'trivy-result.sarif'
+          sarif_file: 'trivy-results.sarif'
 
       - name: Push Docker Image
         run: docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend
@@ -192,12 +190,11 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy scan results
+      - name: Upload Trivy scan results to Gihub Security
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: trivy-report-frontend
-          path: 'trivy-results.sarif'
+          sarif_file: 'trivy-results.sarif'
 
       - name: Push Docker Image
         run: docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend
