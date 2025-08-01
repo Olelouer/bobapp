@@ -7,10 +7,33 @@ on:
     branches: [ main, dev/* ]
 
 jobs:
+  # --- Check frontend and backend changes ---
+  filter:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Paths Filter
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'back/**'
+            frontend:
+              - 'front/**'
+
   # --- BACKEND CI JOB ---
   backend:
     name: Backend - Build, tests, analysis
     runs-on: ubuntu-latest
+    needs: filter
+    if: needs.filter.outputs.backend == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,6 +65,8 @@ jobs:
   frontend:
     name: Frontend - Build, test, analysis
     runs-on: ubuntu-latest
+    needs: filter
+    if: needs.filter.outputs.frontend == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,7 +125,9 @@ jobs:
         with:
           context: ./back
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend:latest
 
   # --- FRONTEND CD JOB ---
   frontend-cd:
@@ -123,4 +150,6 @@ jobs:
         with:
           context: ./front
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-frontend:latest
