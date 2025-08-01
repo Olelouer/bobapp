@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jdk-focal AS build
+FROM maven:3.9-eclipse-temurin-11 AS build
 WORKDIR /workspace
 COPY pom.xml .
 COPY src ./src
