@@ -8,9 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class JokesService {
-  private apiUrl = 'api/joke';
-
-  private pathService = environment.apiUrl;
+  private pathService = `${environment.apiUrl}/api/joke`;
 
   private subject: BehaviorSubject<Joke | null> = new BehaviorSubject<Joke | null>(null);
 
