@@ -162,6 +162,10 @@ jobs:
       - name: Push Docker Image
         run: docker push --all-tags ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-backend
 
+      - name: Trigger Deployment on render
+        if: success()
+        run: curl "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
+
   # --- FRONTEND CD JOB ---
   frontend-cd:
     name: Frontend - Docker Image
