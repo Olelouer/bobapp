@@ -19,7 +19,8 @@ public class WebConfig {
                         "http://localhost",
                         "http://127.0.0.1",
                         "http://localhost:8080",
-                        "https://bobapp-frontend.com",
+                        "https://bobapp-frontend.onrender.com",
+                        "https://bobapp-frontend-latest.onrender.com",
                         "https://bobapp-backend.onrender.com",
                         "https://bobapp-satc.onrender.com"
                     )
